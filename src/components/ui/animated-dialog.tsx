@@ -4,6 +4,38 @@ import { X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+
+const dialogContentVariants = cva(
+  "fixed left-[50%] top-[50%] z-50 grid gap-4 border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:rounded-lg",
+  {
+    variants: {
+      size: {
+        // Compact dialog - minimal space for simple confirmations
+        xs: "w-[90vw] max-w-xs sm:w-[75vw] sm:max-w-sm md:w-[60vw] md:max-w-md lg:w-[45vw] lg:max-w-lg xl:w-[35vw] xl:max-w-xl 2xl:w-[25vw] 2xl:max-w-2xl",
+
+        // Small dialog - compact for mobile, slightly larger on desktop
+        sm: "w-[95vw] max-w-sm sm:w-[85vw] sm:max-w-md md:w-[75vw] md:max-w-lg lg:w-[60vw] lg:max-w-xl xl:w-[45vw] xl:max-w-2xl 2xl:w-[35vw] 2xl:max-w-3xl",
+
+        // Default dialog - balanced across all screens
+        default:
+          "w-[95vw] max-w-md sm:w-[85vw] sm:max-w-lg md:w-[75vw] md:max-w-xl lg:w-[65vw] lg:max-w-2xl xl:w-[50vw] xl:max-w-3xl 2xl:w-[40vw] 2xl:max-w-4xl",
+
+        // Large dialog - spacious for content-heavy dialogs
+        lg: "w-[95vw] max-w-lg sm:w-[90vw] sm:max-w-xl md:w-[85vw] md:max-w-2xl lg:w-[80vw] lg:max-w-3xl xl:w-[70vw] xl:max-w-4xl 2xl:w-[60vw] 2xl:max-w-5xl",
+
+        // Extra large dialog - for complex forms or dashboards
+        xl: "w-[95vw] max-w-xl sm:w-[90vw] sm:max-w-2xl md:w-[85vw] md:max-w-3xl lg:w-[80vw] lg:max-w-4xl xl:w-[75vw] xl:max-w-5xl 2xl:w-[65vw] 2xl:max-w-6xl",
+
+        // Wide dialog - optimized for horizontal content
+        xxl: "w-[95vw] max-w-3xl sm:w-[90vw] sm:max-w-4xl md:w-[85vw] md:max-w-5xl lg:w-[80vw] lg:max-w-6xl xl:w-[75vw] xl:max-w-7xl 2xl:w-[70vw] 2xl:max-w-[90rem]",
+      },
+    },
+    defaultVariants: {
+      size: "default",
+    },
+  },
+);
 
 const Dialog = DialogPrimitive.Root;
 
@@ -33,9 +65,9 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     isOpen: boolean;
-  }
->(({ className, children, isOpen, ...props }, ref) => (
-  <AnimatePresence>
+  } & VariantProps<typeof dialogContentVariants>
+>(({ className, children, isOpen, size, ...props }, ref) => (
+  <AnimatePresence mode="wait">
     {isOpen && (
       <DialogPortal forceMount>
         <DialogOverlay />
@@ -44,8 +76,8 @@ const DialogContent = React.forwardRef<
             initial={{
               scale: 0.5,
               opacity: 0,
-              x: "-50%",
-              y: "-50%",
+              x: "30%",
+              y: "-100%",
             }}
             animate={{
               scale: 1,
@@ -56,18 +88,15 @@ const DialogContent = React.forwardRef<
             exit={{
               scale: 0.5,
               opacity: 0,
-              x: "-50%",
-              y: "-50%",
+              x: "30%",
+              y: "-100%",
             }}
             transition={{ duration: 0.2 }}
-            className={cn(
-              "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg gap-4 border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:rounded-lg",
-              className,
-            )}
+            className={cn(dialogContentVariants({ size }), className)}
           >
             {children}
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400">
-              <X className="h-4 w-4" />
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 hover:bg-red-100 hover:text-red-500 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-gray-950 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400 dark:focus:ring-gray-300">
+              <X className="size-6" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           </motion.div>
