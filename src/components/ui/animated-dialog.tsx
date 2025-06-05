@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
 const dialogContentVariants = cva(
-  "fixed left-[50%] top-[50%] z-50 grid gap-4 border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-950 sm:rounded-lg",
+  "fixed left-[50%] top-[50%] z-50 grid gap-4 border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-800 dark:bg-gray-950 rounded-lg",
   {
     variants: {
       size: {
@@ -65,6 +65,7 @@ const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
     isOpen: boolean;
+    size?: VariantProps<typeof dialogContentVariants>["size"];
   } & VariantProps<typeof dialogContentVariants>
 >(({ className, children, isOpen, size, ...props }, ref) => (
   <AnimatePresence mode="wait">
@@ -74,10 +75,10 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Content ref={ref} {...props} asChild>
           <motion.div
             initial={{
-              scale: 0.5,
+              scale: 0.25,
               opacity: 0,
-              x: "30%",
-              y: "-100%",
+              x: "-50%",
+              y: "-50%",
             }}
             animate={{
               scale: 1,
@@ -86,16 +87,19 @@ const DialogContent = React.forwardRef<
               y: "-50%",
             }}
             exit={{
-              scale: 0.5,
+              scale: 0.25,
               opacity: 0,
-              x: "30%",
-              y: "-100%",
+              x: "-50%",
+              y: "-50%",
             }}
-            transition={{ duration: 0.2 }}
+            transition={{
+              duration: 0.2,
+              ease: "easeOut",
+            }}
             className={cn(dialogContentVariants({ size }), className)}
           >
             {children}
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 hover:bg-red-100 hover:text-red-500 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-gray-950 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400 dark:focus:ring-gray-300">
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:bg-red-100 hover:text-red-500 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-gray-100 data-[state=open]:text-gray-500 dark:ring-offset-gray-950 dark:focus:ring-gray-300 dark:data-[state=open]:bg-gray-800 dark:data-[state=open]:text-gray-400">
               <X className="size-6" />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>

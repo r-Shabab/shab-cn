@@ -1,8 +1,7 @@
 "use client";
-import { Check, ChevronsUpDown, X, Search } from "lucide-react";
+import { Check, X, Search } from "lucide-react";
 import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
@@ -10,6 +9,8 @@ import {
 } from "@/components/ui/popover";
 import { useState, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { PiLineVerticalThin } from "react-icons/pi";
+import { IoChevronDown } from "react-icons/io5";
 
 export interface ComboboxOption<T> {
   value: T;
@@ -48,7 +49,7 @@ function Command({
   return (
     <CommandPrimitive
       className={cn(
-        "flex h-full w-full flex-col overflow-hidden rounded-lg bg-white text-slate-950 shadow-lg dark:bg-slate-950 dark:text-slate-50",
+        "flex h-full w-full flex-col overflow-hidden rounded-lg bg-white text-slate-950 dark:bg-slate-950 dark:text-slate-50",
         className,
       )}
       {...props}
@@ -127,7 +128,7 @@ function CommandItem({
   return (
     <CommandPrimitive.Item
       className={cn(
-        "relative flex cursor-pointer select-none items-center gap-3 rounded-md px-2 py-2.5 text-sm transition-all duration-150 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-slate-100 data-[selected=true]:text-slate-900 data-[disabled=true]:opacity-50 hover:bg-slate-100 dark:data-[selected=true]:bg-slate-800 dark:data-[selected=true]:text-slate-50 dark:hover:bg-slate-800",
+        "relative flex cursor-pointer select-none items-center gap-3 rounded-md px-2 py-2.5 text-sm transition-all duration-150 hover:bg-slate-100 data-[disabled=true]:pointer-events-none data-[selected=true]:bg-slate-100 data-[selected=true]:text-slate-900 data-[disabled=true]:opacity-50 dark:hover:bg-slate-800 dark:data-[selected=true]:bg-slate-800 dark:data-[selected=true]:text-slate-50",
         className,
       )}
       {...props}
@@ -230,13 +231,18 @@ export function Combobox<T>({
   return (
     <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
-        <Button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          type="button"
           ref={triggerRef}
-          variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-label={
+            selectedOption ? `Selected: ${selectedOption.label}` : placeholder
+          }
           className={cn(
-            "w-full justify-between gap-2 font-normal transition-all duration-200",
+            "inline-flex h-10 w-full items-center justify-between gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-normal ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:ring-offset-gray-950 dark:focus-visible:ring-gray-300 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
             sizeClasses[size],
             variantClasses[variant],
             selectedOption && "text-slate-900 dark:text-slate-50",
@@ -245,6 +251,7 @@ export function Combobox<T>({
             className,
           )}
           disabled={disabled}
+          title={getDisplayText()}
         >
           {icon && !selectedOption && <span className="shrink-0">{icon}</span>}
           <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -255,28 +262,36 @@ export function Combobox<T>({
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {clearable && selectedOption && (
-              <span className="rounded-full bg-red-100 p-0.5">
-                <X
-                  className="h-4 w-4 text-rose-400 transition-colors hover:text-rose-600"
+              <>
+                <button
                   onClick={onClear ? onClear : handleClear}
-                />
-              </span>
+                  className="rounded-full bg-red-100 p-0.5 hover:bg-red-200"
+                >
+                  <X className="h-4 w-4 text-rose-400 transition-colors hover:text-rose-600" />
+                </button>
+                <span className="text-slate-400">
+                  <PiLineVerticalThin className="h-4 w-4" />
+                </span>
+              </>
             )}
-            {!selectedOption && (
-              <ChevronsUpDown className="h-4 w-4 text-slate-400" />
-            )}
+
+            {/* animate it based on the direction the portal is opened */}
+            <motion.span animate={{ rotate: open ? 180 : 0 }}>
+              <IoChevronDown className="h-4 w-4 text-slate-400" />
+            </motion.span>
           </div>
-        </Button>
+        </motion.button>
       </PopoverTrigger>
       <AnimatePresence mode="wait">
         {open && (
           <PopoverContent
-            className="w-full border-0 p-0 shadow-xl"
+            className="w-full border-2 border-gray-100 p-0 shadow-lg"
             style={{ width: triggerRef.current?.offsetWidth }}
             sideOffset={4}
             forceMount
           >
             <motion.div
+              layoutId="combobox-list"
               initial={{ opacity: 0, scale: 0.75, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.75, y: -10 }}
